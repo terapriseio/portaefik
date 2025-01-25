@@ -27,9 +27,10 @@ Install required dependencies
 ```
 sudo curl -fsSL https://get.docker.com | bash
 sudo usermod -aG docker leaf
-sudo apt install git
+sudo apt install git -y
 sudo apt update -y
 sudo apt upgrade -y
+cd ~
 ```
 
 ## 1. Clone Repo
