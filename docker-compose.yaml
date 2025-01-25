@@ -1,0 +1,61 @@
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    ports:
+      - "80:80"      # HTTP port
+      - "443:443"    # HTTPS port
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock    # Allow Traefik to monitor Docker
+      - ./letsencrypt:/letsencrypt                   # Store SSL certificates
+    env_file:
+      - .env
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=admin-auth"
+      - "traefik.http.middlewares.admin-auth.basicauth.users=admin:${HASHED_TRAEFIK_PASSWORD}"
+    networks:
+      - proxy    # Attach to proxy network
+    restart: always
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock    # Allow Portainer to manage Docker
+      - portainer_data:/data                         # Persist Portainer data
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"                        # Enable Traefik for this service
+      - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_DOMAIN}`)"   # Route based on domain
+      - "traefik.http.routers.portainer.entrypoints=websecure"              # Use HTTPS
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"       # Use Let's Encrypt
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"     # Internal port
+    networks:
+      - proxy    # Attach to proxy network
+    restart: unless-stopped
+
+volumes:
+  portainer_data:    # Named volume for Portainer data
+
+networks:
+  proxy:
+    name: proxy
+    external: false
