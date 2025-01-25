@@ -30,6 +30,16 @@ sudo usermod -aG docker leaf
 sudo apt install git -y
 sudo apt update -y
 sudo apt upgrade -y
+```
+Log out and back in to refresh groups
+```
+# login to root
+su root
+
+# log back into non root
+su leaf
+
+# change to home dir
 cd ~
 ```
 
