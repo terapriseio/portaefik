@@ -45,7 +45,6 @@ services:
     labels:
       - "traefik.enable=true"                        # Enable Traefik for this service
       - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_DOMAIN}`)"   # Route based on domain
-      - "traefik.http.routers.portainer.entrypoints=websecure"              # Use HTTPS
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"       # Use Let's Encrypt
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"     # Internal port
     networks:

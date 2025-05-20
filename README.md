@@ -83,6 +83,8 @@ Add DNS A records pointing the correct domain names to the IP addresses
 
 > ⚠️ The ssl certs will fail if the dns records aren't added and propagated before starting the containers
 
+> ℹ️ I have had mixed results while running this behind Cloudflare's proxy. If you have issues, i recommend disabling any proxy, but I have services running just find behind a proxy as well.
+
 ## 4. Start Container
 Start the container by the below command from the `~/portaefik` directory:
 ```
@@ -103,8 +105,6 @@ labels:
     - "traefik.enable=true"
     # Route traffic based on domain name
     - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_DOMAIN}`)"
-    # Use HTTPS endpoint
-    - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
     # Enable automatic SSL
     - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
     # Port your application runs on
@@ -135,7 +135,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_DOMAIN}`)"
-      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}"
     networks:
