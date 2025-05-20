@@ -20,7 +20,6 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     labels:
       - "traefik.enable=true"
@@ -43,9 +42,10 @@ services:
     env_file:
       - .env
     labels:
-      - "traefik.enable=true"                        # Enable Traefik for this service
+      - "traefik.enable=true"                                               # Enable Traefik for this service
       - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_DOMAIN}`)"   # Route based on domain
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"       # Use Let's Encrypt
+      - "traefik.http.routers.portainer.entrypoints=websecure"                 # Use Secure Entrypoint
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"     # Internal port
     networks:
       - proxy    # Attach to proxy network

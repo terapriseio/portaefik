@@ -105,6 +105,8 @@ labels:
     - "traefik.enable=true"
     # Route traffic based on domain name
     - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_DOMAIN}`)"
+    # Specify entrypoint
+    - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"                 # Use Secure Entrypoint
     # Enable automatic SSL
     - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
     # Port your application runs on
@@ -135,6 +137,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}.entrypoints=websecure" 
       - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}"
     networks:
@@ -150,7 +153,7 @@ networks:
 ```
 Then you need to define the env vars `APP_DOMAIN`, `APP_PORT`, and `APP_NAME` like:
 ```
-APP_DOMAIN=whatsup.yourDomain.com # what your set in the dns record
+APP_DOMAIN=whatsup.yourDomain.com # what your set in the dns record. Do not include http(s)://
 APP_PORT=3001 # must be what your app actually uses
 APP_NAME=uptime # any name unique in your traefik config
 ```
