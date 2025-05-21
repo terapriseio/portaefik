@@ -17,6 +17,7 @@ services:
       # Docker provider configuration
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"     # Don't expose containers unless explicitly told
+      - "--providers.docker.network=proxy"              # Explicitly defines shared network name to proxy
      
       # Define entrypoints
       - "--entrypoints.web.address=:80"
