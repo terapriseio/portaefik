@@ -11,18 +11,31 @@ services:
     env_file:
       - .env
     command:
-      - "--api.dashboard=true"
-      - "--providers.docker"
-      - "--providers.docker.exposedByDefault=false"
+      - "--api.dashboard=true"                          # Enable dashboard
+      - "--api.insecure=false"                          # Disable insecure dashboard access
+
+      # Docker provider configuration
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"     # Don't expose containers unless explicitly told
+     
+      # Define entrypoints
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+
+      # HTTP to HTTPS redirect
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      
+      # Let's Encrypt configuration
       - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     labels:
       - "traefik.enable=true"
+      
+      # Dashboard configuration
       - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
@@ -44,8 +57,8 @@ services:
     labels:
       - "traefik.enable=true"                                               # Enable Traefik for this service
       - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_DOMAIN}`)"   # Route based on domain
+      - "traefik.http.routers.portainer.entrypoints=websecure"              # Use Secure Entrypoint
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"       # Use Let's Encrypt
-      - "traefik.http.routers.portainer.entrypoints=websecure"                 # Use Secure Entrypoint
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"     # Internal port
     networks:
       - proxy    # Attach to proxy network
@@ -57,4 +70,6 @@ volumes:
 networks:
   proxy:
     name: proxy
+    # For the main config file where you define the network (which is this file), use 'external: false' (since it is made in this file)
+    # For service configs that use this network, use 'external: true'. Since it will need to make this network we just made.
     external: false

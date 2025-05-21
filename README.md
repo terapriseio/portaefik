@@ -125,6 +125,9 @@ networks:
   proxy:
     external: true
 ```
+
+It needs to be `external: true` since the network was defined in an external config, that being the one in our traefik compose file.
+
 ### Complete Example
 Here's a full docker-compose.yaml example using Uptime Kuma:
 ```
