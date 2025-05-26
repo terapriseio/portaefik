@@ -83,6 +83,8 @@ Add DNS A records pointing the correct domain names to the IP addresses
 
 > ⚠️ The ssl certs will fail if the dns records aren't added and propagated before starting the containers
 
+> ⚠️ If using cloudflare, go into security settings and ensure ssl mode is set to `Full (strict)`. Otherwise you will likely get a too many redirects error.
+
 > ℹ️ I have had mixed results while running this behind Cloudflare's proxy. If you have issues, i recommend disabling any proxy, but I have services running just find behind a proxy as well.
 
 ## 4. Start Container
@@ -160,4 +162,6 @@ APP_DOMAIN=whatsup.yourDomain.com # what your set in the dns record. Do not incl
 APP_PORT=3001 # must be what your app actually uses
 APP_NAME=uptime # any name unique in your traefik config
 ```
+
+
 
